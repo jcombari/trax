@@ -167,7 +167,7 @@ class Trax2KerasTest(tf.test.TestCase, parameterized.TestCase):
             keras_outputs = keras_layer(inputs)
         if isinstance(keras_outputs, tuple) and len(keras_outputs) == 1:
           keras_outputs = keras_outputs[0]
-        self.assertAllClose(to_tensors(trax_outputs), keras_outputs)
+        self.assertAllClose(to_tensors(trax_outputs), keras_outputs, atol=1e-5)
         keras_grads = keras_tape.gradient(keras_outputs,
                                           keras_layer.trainable_variables)
         tf.nest.map_structure(

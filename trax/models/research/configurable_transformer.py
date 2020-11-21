@@ -110,8 +110,11 @@ def FeedForwardWithOptions(d_model,
   if ff_chunk_size > 0:
     res = tl.BatchLeadingAxes(tl.Chunk(tl.Serial(res), ff_chunk_size))
   if ff_use_sru:
-    sru = [tl.Dense(32)] + [tl.SRU(32) for _ in range(ff_use_sru)]
-    res = tl.Residual(sru + [tl.Dense(d_model)], res)
+    sru_n_units, sru_n_layers = 32, ff_use_sru
+    if isinstance(ff_use_sru, (list, tuple)):
+      sru_n_units, sru_n_layers = ff_use_sru
+    sru = [tl.SRU(sru_n_units) for _ in range(sru_n_layers)]
+    res = tl.Residual([tl.Dense(sru_n_units)] + sru + [tl.Dense(d_model)], res)
   return [res]
 
 

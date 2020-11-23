@@ -24,7 +24,7 @@ training sentiment analysis tasks on the IMDB dataset::
     data.TFDS('imdb_reviews', keys=('text', 'label'), train=True),
     data.Tokenize(vocab_file='en_8k.subword', keys=[0]),
     data.Shuffle(),
-    data.FilterByLength(max_length=2048, length_keys=[0]),
+    data.FilterByLength(accepted_length=(None, 2048), length_keys=[0]),
     data.BucketByLength(boundaries=[  32, 128, 512, 2048],
                         batch_sizes=[128,  32,   8,    2, 1],
                         length_keys=[0]),
@@ -362,15 +362,36 @@ def BucketByLength(boundaries, batch_sizes,  # pylint: disable=invalid-name
       g, length_fn, boundaries, batch_sizes, strict_pad_on_len)
 
 
-def FilterByLength(max_length,  # pylint: disable=invalid-name
-                   length_keys=None, length_axis=0):
-  """Returns a function that filters out examples longer than `max_length`."""
-  length_keys = length_keys or [0, 1]
+def FilterByLength(accepted_length,  # pylint: disable=invalid-name
+                   length_keys=[0, 1], length_axis=0):
+  """Returns a function that filters out examples by length.
+
+  Args:
+    accepted_length: an int tuple specifying [min, max) length boundaries.
+                     If any of them is None, not enforced.
+    length_keys: (list) which example keys to take into account.
+    length_axis: which shape axis to take into account.
+  Returns:
+    a function that filters out examples by length.
+  """
+
+  assert isinstance(accepted_length, (tuple))
+  assert len(accepted_length) == 2
   length_fn = lambda x: _length_fn(x, length_axis, length_keys)
   def filtered(gen):
     for example in gen:
-      if length_fn(example) <= max_length:
-        yield example
+      example_len = length_fn(example)
+
+      # Checking max length boundary.
+      if accepted_length[1] is not None:
+        if example_len >= accepted_length[1]:
+          continue
+      # Checking min length boundary.
+      if accepted_length[0] is not None:
+        if example_len < accepted_length[0]:
+          continue
+      # Within bounds.
+      yield example
   return filtered
 
 

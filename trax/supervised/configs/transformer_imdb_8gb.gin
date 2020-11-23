@@ -34,7 +34,7 @@ train/data.TFDS.dataset_name = 'imdb_reviews'
 train/data.TFDS.keys = ('text', 'label')
 data.Tokenize.vocab_file = 'en_8k.subword'
 data.Tokenize.keys = [0]  # Tokenize only the first element (text, not label).
-train/data.FilterByLength.max_length = 1024
+train/data.FilterByLength.accepted_length = (None, 1024)
 train/data.FilterByLength.length_keys = [0]
 data.BucketByLength.boundaries =  [32,  64, 128, 256, 512, 1024, 2048]
 data.BucketByLength.batch_sizes = [128, 64,  32,  16,   8,    1,    1, 1]
@@ -50,7 +50,7 @@ make_inputs.eval_stream = [
 eval/data.TFDS.dataset_name = 'imdb_reviews'
 eval/data.TFDS.keys = ('text', 'label')
 eval/data.TFDS.train = False
-eval/data.FilterByLength.max_length = 2048
+eval/data.FilterByLength.accepted_length = (None, 2048)
 eval/data.FilterByLength.length_keys = [0]
 
 # Parameters for data_streams:

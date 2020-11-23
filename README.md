@@ -272,7 +272,7 @@ Using the `trax.data` module you can create input processing pipelines, e.g., to
 data_pipeline = trax.data.Serial(
     trax.data.Tokenize(vocab_file='en_8k.subword', keys=[0]),
     trax.data.Shuffle(),
-    trax.data.FilterByLength(max_length=2048, length_keys=[0]),
+    trax.data.FilterByLength(accepted_length=(None, 2048), length_keys=[0]),
     trax.data.BucketByLength(boundaries=[  32, 128, 512, 2048],
                              batch_sizes=[256,  64,  16,    4, 1],
                              length_keys=[0]),
